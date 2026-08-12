@@ -1,0 +1,25 @@
+# Python and local environments
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+.DS_Store
+
+# Large processed arrays (see EXCLUDED_FILES.md)
+intergral_v7_weighted/**/samples_train.npz
+intergral_v7_weighted/**/samples_infer.npz
+
+# Raw data
+TCV_required_features_integrated/
+TCV_Processed_H5_compare/
+
+# Generated models and reports
+v7_weighted_outputs/
+v10_outputs/
+v10_visualizations/
+comparison_edge_*_v7_weighted.png
+
+# Experiment tracking
+wandb/
+
