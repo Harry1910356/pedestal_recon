@@ -2,6 +2,8 @@
 
 This repository contains the source code, small data-contract files, and v7 checkpoints for reconstructing TCV electron-temperature (Te) and electron-density (Ne) profiles. Large processed arrays and raw source data are intentionally excluded from Git. See [EXCLUDED_FILES.md](EXCLUDED_FILES.md) for their exact sizes and expected locations.
 
+For a detailed description of zero filling, NaN removal, outlier filters, and normalization in the v7 raw-data pipeline, see [the v7 preprocessing reference](lh_transitions/README_raw_ped_v7_weighted.md).
+
 ## Model versions
 
 | Version | Network and loss | Input features |
@@ -165,6 +167,7 @@ The roles are complementary:
 │   ├── val/{feature_names.json,metadata.parquet}
 │   └── test/{feature_names.json,metadata.parquet}
 ├── lh_transitions/
+│   ├── README_raw_ped_v7_weighted.md
 │   ├── raw_ped_v7_weighted.py
 │   ├── profile_recon_robust_sobolev_mtanh_v7_weighted.py
 │   ├── visualize_resmlp_v7.py
