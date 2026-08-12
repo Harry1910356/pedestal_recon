@@ -8,8 +8,10 @@ Core processing rules:
 2. Load every split into memory before cleaning.
 3. Delay zero filling for designated columns until after magnitude scaling, then replace residual NaNs with zero.
 4. Targets:
-   - Y_mtanh: reconstruct 100 points over rho=0.7--1.25 from _raw.h5 and apply a per-column Z-score.
-   - Y_fit: use the 201-point physical profile over rho=0--1.25 and apply a per-column Z-score.
+   - Y_mtanh: reconstruct 100 points over rho=0.7--1.25 from the mtanh
+     parameters in the direct .h5 file and apply a per-column Z-score.
+   - Y_fit: reconstruct the 201-point physical profile over rho=0--1.25 from
+     fit/counts_fit in the companion _raw.h5 file and apply a per-column Z-score.
 5. Adaptive normalization: monitor training features with extremely small variance.
 6. Feature engineering: add first- and second-order time derivatives and moving averages for continuous variables.
 """
