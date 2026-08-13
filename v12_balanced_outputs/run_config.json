@@ -1,0 +1,35 @@
+{
+  "version": "v12",
+  "reconstruction_scope": "full_profile",
+  "design": "v11_pedestal_aware_physical_slope_balanced",
+  "data_root": "intergral_v7_weighted",
+  "device": "cpu",
+  "training": {
+    "epochs": 15,
+    "batch_size": 512,
+    "learning_rate": 1e-05,
+    "weight_decay": 0.0001,
+    "weight_value": 8.0,
+    "weight_gradient": 1.5,
+    "weight_peak_magnitude": 0.5,
+    "weight_peak_location": 0.1,
+    "pedestal_point_boost": 4.0,
+    "pedestal_sample_boost": 0.25,
+    "pedestal_quantile": 0.8,
+    "pedestal_rho_min": 0.7,
+    "pedestal_rho_max": 1.1,
+    "location_temperature": 0.2,
+    "huber_delta": 0.5,
+    "gradient_clip": 1.0,
+    "seed": 42
+  },
+  "species_thresholds": {
+    "Te": 3.31225,
+    "Ne": 12.4114
+  },
+  "checkpoints": [
+    "v12_balanced_outputs/best_resmlp_v12_te_pedestal_aware.pth",
+    "v12_balanced_outputs/best_resmlp_v12_ne_pedestal_aware.pth"
+  ],
+  "selection_note": "Balanced fine-tuning selected to improve pedestal slope while preserving full-profile NRMSE."
+}

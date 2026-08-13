@@ -1,7 +1,7 @@
 [project]
-name = "tcv-profile-reconstruction-v7-v10"
+name = "tcv-profile-reconstruction"
 version = "0.1.0"
-description = "TCV v7 weighted and v10 all-feature profile reconstruction models"
+description = "TCV v7, v10, and v12 profile reconstruction models"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [

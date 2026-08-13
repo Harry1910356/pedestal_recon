@@ -1,17 +1,18 @@
-# TCV Profile Reconstruction: v7 and v10
+# TCV Profile Reconstruction: v7, v10, and v12
 
-This repository contains the source code, small data-contract files, and v7 checkpoints for reconstructing TCV electron-temperature (Te) and electron-density (Ne) profiles. Large processed arrays and raw source data are intentionally excluded from Git. See [EXCLUDED_FILES.md](EXCLUDED_FILES.md) for their exact sizes and expected locations.
+This repository contains the source code, small data-contract files, and selected checkpoints for reconstructing TCV electron-temperature (Te) and electron-density (Ne) profiles. It covers the v7 and v10 cropped-profile models and the v12 full-profile model. Large processed arrays and raw source data are intentionally excluded from Git. See [EXCLUDED_FILES.md](EXCLUDED_FILES.md) for their exact sizes and expected locations.
 
 For a detailed description of zero filling, NaN removal, outlier filters, and normalization in the v7 raw-data pipeline, see [the v7 preprocessing reference](lh_transitions/README_raw_ped_v7_weighted.md).
 
 ## Model versions
 
-| Version | Network and loss | Input features |
-|---|---|---|
-| `v7_weighted` | Four-block ResMLP with a core-weighted Huber-Sobolev loss | 69 of the 112 stored columns, selected by the union of Te/Ne random-forest and permutation ranks at threshold 50 |
-| `v10` | The same dataset contract, ResMLP, and loss as v7 | All 112 stored columns in their saved order; no feature-importance ranking is read |
+| Version | Reconstruction scope | Network and loss | Input features |
+|---|---|---|---|
+| `v7_weighted` | Cropped profile: 100 points over `rho=0.7--1.25` | Four-block ResMLP with a core-weighted Huber-Sobolev loss | 69 of the 112 stored columns, selected by the union of Te/Ne random-forest and permutation ranks at threshold 50 |
+| `v10` | Cropped profile: 100 points over `rho=0.7--1.25` | The same dataset contract, ResMLP, and loss as v7 | All 112 stored columns in their saved order; no feature-importance ranking is read |
+| `v12` | **Full profile: 201 points over `rho=0--1.25`** | Four-block ResMLP with a pedestal-aware physical-slope loss | All 112 stored columns in their saved order |
 
-v10 imports the shared v7 dataset, network, and loss definitions so that its only intended experimental difference is feature selection.
+v10 imports the shared v7 dataset, network, and loss definitions so that its only intended experimental difference is feature selection. v12 is self-contained and reconstructs every radial point from the physical-fit `Y_fit` target. Its pedestal-aware objective improves edge-gradient recovery without changing the full-profile output scope. See [README_V12.md](README_V12.md) for the complete v12 design and commands.
 
 ## Data flow
 
@@ -100,7 +101,7 @@ Ne/{alpha,offset,ped_height,ped_width,ped_pos,boundary_rho,
     param_err,poly,poly_err,r2,rmse}
 ```
 
-`raw_ped_v7_weighted.py` reads `time` and the five mtanh parameters (`alpha`, `offset`, `ped_height`, `ped_width`, and `ped_pos`) for each species. It evaluates the mtanh expression on 100 radial points over `rho = 0.7–1.25` and concatenates Te and Ne into the 200-column normalized training target `Y_train`.
+`raw_ped_v7_weighted.py` reads `time` and the five mtanh parameters (`alpha`, `offset`, `ped_height`, `ped_width`, and `ped_pos`) for each species. It evaluates the mtanh expression on 100 radial points over `rho = 0.7–1.25` and concatenates Te and Ne into the 200-column normalized training target `Y_train` used by v7 and v10.
 
 The main v7 target therefore comes from the fitted parameters in the direct `.h5` file, not from `_raw.h5`.
 
@@ -120,7 +121,7 @@ Te/{fit,counts_fit,raw_rho,raw_profile,raw_error_bar,counts}
 Ne/{fit,counts_fit,raw_rho,raw_profile,raw_error_bar,counts}
 ```
 
-During v7 dataset construction, `fit` and `counts_fit` are used to reconstruct a 201-point physical reference profile over `rho = 0–1.25` for each species. Te and Ne are concatenated into the 402-column `Y_fit` array. `Y_fit` is saved with each labeled split and is used for quality checks, reference curves, and later analysis; it is not the direct 200-column prediction target of the v7/v10 ResMLP.
+During v7 dataset construction, `fit` and `counts_fit` are used to reconstruct a 201-point physical reference profile over `rho = 0–1.25` for each species. Te and Ne are concatenated into the 402-column `Y_fit` array. `Y_fit` is saved with each labeled split. It is a reference target for v7/v10 and the direct full-profile prediction target for v12.
 
 The `raw_rho`, `raw_profile`, `raw_error_bar`, and `counts` fields are not used to construct `Y_train`. They are used by the optional post-training plotting routine in `profile_recon_robust_sobolev_mtanh_v7_weighted.py` to overlay raw Thomson-scattering points and error bars on reconstructed profiles.
 
@@ -154,6 +155,7 @@ The roles are complementary:
 ```text
 .
 ├── README.md
+├── README_V12.md
 ├── EXCLUDED_FILES.md
 ├── pyproject.toml
 ├── compare_mtanh_models.py
@@ -161,6 +163,11 @@ The roles are complementary:
 ├── mismatched_slices.csv
 ├── best_resmlp_robust_model_te_mtanh_v7_weighted.pth
 ├── best_resmlp_robust_model_ne_mtanh_v7_weighted.pth
+├── v12_balanced_outputs/
+│   ├── best_resmlp_v12_te_pedestal_aware.pth
+│   ├── best_resmlp_v12_ne_pedestal_aware.pth
+│   └── run_config.json
+├── v12_comparison/
 ├── intergral_v7_weighted/
 │   ├── standardization_scalars.npz
 │   ├── train/{feature_names.json,metadata.parquet}
@@ -173,6 +180,8 @@ The roles are complementary:
 │   ├── visualize_resmlp_v7.py
 │   ├── profile_recon_robust_sobolev_mtanh_v10.py
 │   ├── visualize_resmlp_v10.py
+│   ├── profile_recon_pedestal_aware_v12.py
+│   ├── predict_full_profile_v12.py
 │   └── stats_output/feature_importance_ranking_{te,ne}.csv
 └── tests/
 ```
@@ -250,6 +259,25 @@ uv run python lh_transitions/visualize_resmlp_v10.py \
   --split test \
   --device auto
 ```
+
+## Running v12 full-profile reconstruction
+
+v12 predicts the complete 201-point Te and Ne profiles over `rho=0--1.25`.
+The included checkpoints explicitly declare
+`reconstruction_scope=full_profile`. After restoring
+`test/samples_train.npz`, run:
+
+```bash
+uv run python -m lh_transitions.predict_full_profile_v12 \
+  --data-root intergral_v7_weighted \
+  --checkpoint-dir v12_balanced_outputs \
+  --output-dir v12_balanced_predictions \
+  --split test
+```
+
+The saved prediction matrix has 402 columns: 201 Te values followed by 201 Ne
+values. For training and fine-tuning details, see
+[README_V12.md](README_V12.md).
 
 ## Rebuilding the dataset from source data
 
