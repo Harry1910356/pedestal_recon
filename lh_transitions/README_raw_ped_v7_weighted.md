@@ -205,7 +205,7 @@ The code assumes Te is in keV and Ne is in `10^19 m^-3`.
 The Ne fit at `rho=0` is compared with `Ne_core_avg`:
 
 - if either value is nonpositive, remove the time slice;
-- after multiplying the TS value by `1e19`, remove the time slice when `TS / Parquet > 100` or `< 0.01`.
+- after multiplying the TS value by `1e19`, remove the time slice when `TS / Parquet > 10` or `< 0.1`, matching the threshold used to create `mismatched_slices.csv`.
 
 #### Ne-related X features
 

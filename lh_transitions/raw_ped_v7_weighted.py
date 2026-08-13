@@ -52,6 +52,7 @@ RHO_GRID_MTANH = np.linspace(RHO_MIN_MTANH, RHO_MAX_MTANH, RHO_POINTS_MTANH, dty
 # Mismatched-slice filtering configuration
 FILTER_MISMATCHED_SLICES = True
 MISMATCHED_SLICES_CSV = Path(__file__).resolve().parent.parent / "mismatched_slices.csv"
+CORE_DENSITY_MAX_RATIO = 10.0
 
 # Generate target column names dynamically (for example, Te_rho_0 ... Ne_rho_99).
 Y_TARGET_COLUMNS: list[str] = []
@@ -634,7 +635,7 @@ def build_reconstruction_dataset(
                 elif np.any(ne_fit < 0.0) or np.any(ne_fit > 15.0):
                     keep_mask[t_idx] = False
 
-            # 2. TS vs Parquet core density check: discard time steps where core density differs by 100x
+            # 2. TS vs Parquet core density check: discard time steps where core density differs by 10x
             if "Ne_core_avg" in raw_feature_cols:
                 ne_core_idx = raw_feature_cols.index("Ne_core_avg")
                 for t_idx in range(len(t_train)):
@@ -649,7 +650,7 @@ def build_reconstruction_dataset(
                         else:
                             ts_scaled = ts_val * 1e19
                             ratio = ts_scaled / pq_val
-                            if ratio > 100.0 or ratio < 0.01:
+                            if ratio > CORE_DENSITY_MAX_RATIO or ratio < 1.0 / CORE_DENSITY_MAX_RATIO:
                                 keep_mask[t_idx] = False
                 
             t_train = t_train[keep_mask]
