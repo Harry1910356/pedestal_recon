@@ -281,14 +281,43 @@ values. For training and fine-tuning details, see
 
 ## Rebuilding the dataset from source data
 
-Restore both excluded source directories before preprocessing:
+### Required folder names and one-command generation
+
+Place the source files in the following directories at the repository root.
+The directory names and file naming patterns must match exactly:
 
 ```text
-TCV_required_features_integrated/
-TCV_Processed_H5_compare/
+pedestal_recon/
+├── TCV_required_features_integrated/
+│   └── TCV_DATAno<shot>build.parquet
+├── TCV_Processed_H5_compare/
+│   ├── TCV_zhang_<shot>.h5
+│   └── TCV_zhang_<shot>_raw.h5
+├── flat_top_times.csv
+└── lh_transitions/raw_ped_v7_weighted.py
 ```
 
-Run the parameterized function rather than relying on a machine-specific path:
+Each shot requires one integrated-feature parquet file and the matching direct
+and `_raw` HDF5 files. Once the files are in these folders, generate the
+train, validation, and test datasets by running:
+
+```bash
+uv run python lh_transitions/raw_ped_v7_weighted.py
+```
+
+The generated dataset is written to `intergral_v7_weighted/`. This includes
+the normalized labeled and inference NPZ files, split metadata, feature-name
+files, and `standardization_scalars.npz`.
+
+> **Current flat-top coverage:** the checked-in `flat_top_times.csv` has not
+> yet been updated for an expanded shot collection. It currently contains
+> **3,946 unique shots**, which is fewer than 4,000. A shot that has valid HDF5
+> and parquet files but is absent from `flat_top_times.csv` is skipped by the
+> preprocessing code. Update the CSV before rebuilding if additional shots
+> should be included.
+
+The same operation can be called explicitly from Python when custom paths or
+split settings are needed:
 
 ```bash
 uv run python -c "from lh_transitions.raw_ped_v7_weighted import build_reconstruction_dataset; build_reconstruction_dataset(x_folder='TCV_required_features_integrated', h5_folder='TCV_Processed_H5_compare', output_root='intergral_v7_weighted', flat_top_csv='flat_top_times.csv', split_ratios=(0.7, 0.2, 0.1), split_seed=42, target_dt_ms=1.0)"
