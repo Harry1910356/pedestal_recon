@@ -7,11 +7,11 @@ The following sizes were measured when this release repository was assembled. Th
 | Original file | Size | Purpose and restore location |
 |---|---:|---|
 | `intergral_v7_weighted/train/samples_infer.npz` | 798,897,472 bytes (about 762 MiB) | Unlabeled 1 ms inference sequences for training shots |
-| `intergral_v7_weighted/train/samples_train.npz` | 296,710,039 bytes (about 283 MiB) | Required for v7/v10 training |
+| `intergral_v7_weighted/train/samples_train.npz` | 296,710,039 bytes (about 283 MiB) | Required for v7/v10/v11 training and v12 fine-tuning |
 | `intergral_v7_weighted/val/samples_infer.npz` | 225,881,045 bytes (about 215 MiB) | Unlabeled validation-shot inference sequences |
 | `intergral_v7_weighted/test/samples_infer.npz` | 118,440,100 bytes (about 113 MiB) | Unlabeled test-shot inference sequences |
-| `intergral_v7_weighted/val/samples_train.npz` | 83,638,396 bytes (about 80 MiB) | Required for validation and checkpoint selection |
-| `intergral_v7_weighted/test/samples_train.npz` | 43,677,310 bytes (about 42 MiB) | Required for labeled test evaluation |
+| `intergral_v7_weighted/val/samples_train.npz` | 83,638,396 bytes (about 80 MiB) | Required for validation and checkpoint selection across all four versions |
+| `intergral_v7_weighted/test/samples_train.npz` | 43,677,310 bytes (about 42 MiB) | Required for labeled test evaluation across all four versions |
 
 The final two files are below GitHub's 100 MiB hard limit, but they are still excluded to keep datasets out of the source repository and to keep clones small.
 
@@ -37,6 +37,7 @@ DATA_DOWNLOAD_URL_OR_INSTRUCTIONS=not yet provided
 | `v10_visualizations/` (about 8.5 MiB) | Results belong to the previous shape-balanced v10 and do not describe the current all-feature v10 |
 | `v10_outputs/best_resmlp_v10_{te,ne}.pth` | Checkpoints use the replaced v10 architecture and cannot be loaded by the current v7-style, 112-input model |
 | Other old `v10_outputs/` history, configuration, and shape-label files | Artifacts of the replaced v10 workflow; regenerate them with the current implementation |
+| `v11_predictions/` and `v11_visualizations/` | Derived predictions, plots, and metric reports can be regenerated from the included v11 checkpoints and restored test data |
 | Root-level and auxiliary image-directory `*_v7_weighted.png` files | Duplicate or sampled plots rather than runtime dependencies |
 | v7 scripts under `scratch/` | One-off analysis code with machine-specific paths; not part of the core training/evaluation path |
 
