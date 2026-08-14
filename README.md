@@ -141,11 +141,20 @@ At inspection time, the source directory contained:
 | Slices with both Te and Ne `counts_fit == 201` | 280,922 |
 
 All 3,760 pairs had the fields and array relationships required by the v7 loader. This does not mean that every pair or time slice appears in the final dataset. A sample is retained only if the shot also has a matching feature parquet file and the slice passes the flat-top, finite-value, physical-range, TS/core-density consistency, and mismatch-list filters.
+| Prepare | flat-top selection |
+
+Using matlab function: flat_top_pick_function.m
+Read from the TCV.db, get the time for the flat-top phase. The output will be 
+flat_top_times.csv, which is needed for the raw_ped_v7_weighted.py to generate the training dataset.
+| Prepare | Parquet files |
+These files should be saved in a folder (Created by the user themselves): TCV_required_features_integrated, which including all input features. 
 
 The roles are complementary:
 
-| Source | Primary v7 role |
+| Prepare | Primary v7 role |
 |---|---|
+These files should be saved in a folder (Created by the user themselves): 
+TCV_Processed_H5_compare, which including all-needed TS output. 
 | Direct `.h5` | Time axis and fitted mtanh parameters used to generate the 100-point Te and Ne model targets |
 | `_raw.h5` | 201-point reference fits used for `Y_fit`; raw TS points used by optional diagnostic plots |
 | Integrated parquet | Time-dependent X features used as model input |
